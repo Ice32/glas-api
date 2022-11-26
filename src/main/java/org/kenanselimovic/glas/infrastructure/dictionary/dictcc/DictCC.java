@@ -1,0 +1,44 @@
+package org.kenanselimovic.glas.infrastructure.dictionary.dictcc;
+
+import io.smallrye.mutiny.Uni;
+import io.vertx.mutiny.core.Vertx;
+import io.vertx.mutiny.ext.web.client.HttpResponse;
+import io.vertx.mutiny.ext.web.client.WebClient;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
+import org.jsoup.Jsoup;
+import org.kenanselimovic.glas.domain.dictionary.Dictionary;
+import org.kenanselimovic.glas.domain.dictionary.Translation;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.net.URLEncoder;
+import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+@ApplicationScoped
+public class DictCC implements Dictionary {
+    private final Logger logger = Logger.getLogger(DictCC.class);
+    private final WebClient webClient;
+
+    @ConfigProperty(name = "glas.dictionaries.dictcc.url")
+    String url;
+
+    @Inject
+    public DictCC(Vertx vertx) {
+        webClient = WebClient.create(vertx);
+    }
+
+    @Override
+    public Uni<List<Translation>> getTranslation(String phrase) {
+        final String formattedUrl = "%s/?s=%s".formatted(url, URLEncoder.encode(phrase, UTF_8));
+        logger.debug(formattedUrl);
+
+        return webClient.getAbs(formattedUrl).send()
+                .onItem().transform(HttpResponse::bodyAsString)
+                .onItem().transform(Jsoup::parse)
+                .onItem().invoke(logger::debug)
+                .onItem().transform(doc -> new DocumentParser(doc).parse());
+    }
+}
