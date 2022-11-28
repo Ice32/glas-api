@@ -50,18 +50,18 @@
             <artifactId>jsoup</artifactId>
             <version>1.15.3</version>
         </dependency>
-        <!-- Hibernate Reactive dependency -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-reactive</artifactId>
         </dependency>
-
-        <!-- Reactive SQL client for PostgreSQL -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-reactive-pg-client</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-hibernate-validator</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5</artifactId>
@@ -90,8 +90,6 @@
             <version>1.17.6</version>
             <scope>test</scope>
         </dependency>
-
-
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
@@ -104,8 +102,6 @@
             <version>4.9.0</version>
             <scope>test</scope>
         </dependency>
-
-
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock-jre8</artifactId>

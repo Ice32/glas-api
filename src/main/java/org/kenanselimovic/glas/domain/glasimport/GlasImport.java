@@ -9,14 +9,19 @@ public class GlasImport {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(nullable = false)
+    private String title;
+
     @Column(nullable = false, columnDefinition = "TEXT NOT NULL")
     private String text;
+
 
     protected GlasImport() {
         // for JPA
     }
 
-    public GlasImport(String text) {
+    public GlasImport(String title, String text) {
+        this.title = title;
         this.text = text;
     }
 
@@ -34,5 +39,13 @@ public class GlasImport {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

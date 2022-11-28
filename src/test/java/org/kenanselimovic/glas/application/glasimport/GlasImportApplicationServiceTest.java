@@ -24,10 +24,11 @@ class GlasImportApplicationServiceTest {
     @Test
     void getImport_ImportExists_ReturnsIt() {
         final long id = 1343141;
+        final String importTitle = "a title";
         final String importText = "a text";
-        final GlasImport glasImport = new GlasImport(importText);
+        final GlasImport glasImport = new GlasImport(importTitle, importText);
         glasImport.setId(id);
-        final GlasImportDTO expected = new GlasImportDTO(id, importText);
+        final GlasImportDTO expected = new GlasImportDTO(id, importTitle, importText);
         when(repository.findById(id)).thenReturn(Uni.createFrom().item(glasImport));
 
         final GlasImportDTO actual = applicationService.getImport(id).await().indefinitely();

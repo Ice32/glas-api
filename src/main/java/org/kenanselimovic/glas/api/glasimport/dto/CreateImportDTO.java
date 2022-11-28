@@ -1,4 +1,6 @@
 package org.kenanselimovic.glas.api.glasimport.dto;
 
-public record CreateImportDTO(String text) {
+import javax.validation.constraints.NotNull;
+
+public record CreateImportDTO(@NotNull String title, @NotNull String text) {
 }
