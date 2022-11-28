@@ -54,3 +54,9 @@ If you want to learn more about building native executables, please consult http
 Easily start your Reactive RESTful Web Services
 
 [Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+
+# To start DB:
+
+```
+docker run --name postgres-test -e POSTGRES_PASSWORD=admin -e POSTGRES_USER=admin -e POSTGRES_DB=glas -p 5432:5432 -d postgres
+```
