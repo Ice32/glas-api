@@ -1,5 +1,6 @@
 package org.kenanselimovic;
 
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 import org.kenanselimovic.glas.domain.glasimport.GlasImport;
@@ -11,6 +12,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
 @QuarkusTest
+@QuarkusTestResource(PostgresContainerResource.class)
 class GlasImportResourceTest {
     @Inject
     GlasImportRepository repository;

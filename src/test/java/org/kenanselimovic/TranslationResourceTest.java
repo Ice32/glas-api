@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 @QuarkusTest
 @QuarkusTestResource(DictCCWiremock.class)
+@QuarkusTestResource(PostgresContainerResource.class)
 class TranslationResourceTest {
 
     @Test
