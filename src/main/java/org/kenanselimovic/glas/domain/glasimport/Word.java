@@ -1,5 +1,6 @@
 package org.kenanselimovic.glas.domain.glasimport;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
@@ -7,6 +8,7 @@ import java.util.Objects;
 @Embeddable
 public class Word {
     @NotNull
+    @Column(nullable = false, unique = true)
     private String text;
 
     public Word() {
@@ -26,6 +28,7 @@ public class Word {
     }
 
     @Override
+
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Word word)) return false;

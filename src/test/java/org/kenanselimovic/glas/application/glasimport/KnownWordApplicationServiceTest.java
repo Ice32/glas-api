@@ -42,11 +42,13 @@ class KnownWordApplicationServiceTest {
     @Test
     void getKnownWords_ReturnsWhateverRepositoryReturns() {
         final String wordText = "aWord";
+        final KnownWord knownWord = new KnownWord(wordText);
+        knownWord.setId(31L);
         when(knownWordRepository.findAll())
-                .thenReturn(Uni.createFrom().item(singletonList(new KnownWord(wordText))));
+                .thenReturn(Uni.createFrom().item(singletonList(knownWord)));
 
         final List<KnownWordDTO> actual = knownWordApplicationService.getKnownWords().await().indefinitely();
 
-        assertThat(actual).containsExactly(new KnownWordDTO(wordText));
+        assertThat(actual).containsExactly(new KnownWordDTO(31L, wordText));
     }
 }

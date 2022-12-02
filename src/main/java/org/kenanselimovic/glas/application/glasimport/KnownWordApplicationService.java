@@ -1,6 +1,7 @@
 package org.kenanselimovic.glas.application.glasimport;
 
 import io.smallrye.mutiny.Uni;
+import org.jboss.logging.Logger;
 import org.kenanselimovic.glas.api.glasimport.dto.CreateKnownWordDTO;
 import org.kenanselimovic.glas.api.glasimport.dto.KnownWordDTO;
 import org.kenanselimovic.glas.domain.glasimport.KnownWord;
@@ -13,6 +14,8 @@ import java.util.List;
 @ApplicationScoped
 public class KnownWordApplicationService {
 
+    private final Logger logger = Logger.getLogger(KnownWordApplicationService.class);
+
     @Inject
     KnownWordRepository knownWordRepository;
 
@@ -22,6 +25,7 @@ public class KnownWordApplicationService {
 
     public Uni<List<KnownWordDTO>> getKnownWords() {
         return knownWordRepository.findAll()
-                .map(knownWords -> knownWords.stream().map(kw -> new KnownWordDTO(kw.getWord().getText())).toList());
+                .map(knownWords -> knownWords.stream().map(kw -> new KnownWordDTO(kw.getId(), kw.getWord().getText())).toList())
+                .onItem().invoke(logger::debug);
     }
 }

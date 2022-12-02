@@ -54,6 +54,14 @@ class KnownWordRepositoryIntegrationTest {
     }
 
     @Test
+    void save_DuplicateWord_Throws() {
+        final String wordText = "aWord";
+        sf.withTransaction(session -> session.persist(new KnownWord(wordText))).await().indefinitely();
+
+        assertThrows(PersistenceException.class, () -> knownWordRepository.save(new KnownWord(wordText)).await().indefinitely());
+    }
+
+    @Test
     void findALl_ReturnsAll() {
         final KnownWord knownWord = new KnownWord("aWord");
         sf.withTransaction(session -> session.persist(knownWord)).await().indefinitely();
