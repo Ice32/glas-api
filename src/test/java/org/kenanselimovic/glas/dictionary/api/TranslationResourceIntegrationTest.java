@@ -2,6 +2,8 @@ package org.kenanselimovic.glas.dictionary.api;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import org.hibernate.reactive.mutiny.Mutiny;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.kenanselimovic.PostgresContainerResource;
 import org.kenanselimovic.glas.dictionary.domain.Translation;
@@ -13,6 +15,7 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.equalTo;
 
 @QuarkusTest
@@ -22,6 +25,17 @@ class TranslationResourceIntegrationTest {
 
     @Inject
     TranslationRepository translationRepository;
+
+    @Inject
+    Mutiny.SessionFactory sf;
+
+    @BeforeEach
+    void beforeEach() {
+        sf
+                .withTransaction(session -> session.createQuery("DELETE FROM Translation ").executeUpdate())
+                .await().indefinitely();
+    }
+
 
     @Test
     void getTranslations_ReturnsDataStubbedThroughWiremock() {
@@ -39,7 +53,7 @@ class TranslationResourceIntegrationTest {
     }
 
     @Test
-    void getTranslations_NewWord_SavesTranslationInDb() {   // TODO: test no duplicate inserted
+    void getTranslations_NewWord_SavesTranslationInDb() {
         final String phrase = "Wirt";
         given()
                 .param("phrase", phrase)
@@ -53,6 +67,23 @@ class TranslationResourceIntegrationTest {
                 new Translation("host [esp. in a hotel etc.]", "Wirt {m}", "Wirt"),
                 new Translation("landlord [Br.] [innkeeper, publican]", "Wirt {m} [Lokalbesitzer]", "Wirt")
         );
+    }
+
+    @Test
+    void getTranslations_WordAlreadyCached_NoAdditionalRowsStored() {
+        final String phrase = "Wirt";
+        given().param("phrase", phrase).when().get("/translations");    // cache
+        await().pollInSameThread().until(() -> translationRepository.findByPhrase(phrase).await().indefinitely().size() == 22);
+        final int initialSize = translationRepository.findByPhrase(phrase).await().indefinitely().size();
+
+        given()
+                .param("phrase", phrase)
+                .when().get("/translations")
+                .then()
+                .statusCode(200);
+
+        final int newSize = translationRepository.findByPhrase(phrase).await().indefinitely().size();
+        assertThat(newSize).isEqualTo(initialSize);
     }
 
 }

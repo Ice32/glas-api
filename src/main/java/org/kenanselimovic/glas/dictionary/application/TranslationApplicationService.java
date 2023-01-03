@@ -23,8 +23,14 @@ public final class TranslationApplicationService {
 
 
     public Uni<PhraseResponseDTO> getTranslation(String phrase) {
-        return dictionary.getTranslation(phrase)
-                .onItem().invoke(this::cacheTranslations)
+        return translationRepository.findByPhrase(phrase)
+                .flatMap(cachedTranslations -> {
+                    if (!cachedTranslations.isEmpty()) {
+                        return Uni.createFrom().item(cachedTranslations);
+                    }
+                    return dictionary.getTranslation(phrase)
+                            .onItem().invoke(this::cacheTranslations);
+                })
                 .map(translations -> new PhraseResponseDTO(phrase, translations.stream().map(t -> {
                     final TranslationDTO.TranslationDTOExporter exporter = new TranslationDTO.TranslationDTOExporter();
                     t.export(exporter);
