@@ -4,22 +4,40 @@ import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
 import org.kenanselimovic.glas.dictionary.api.dto.PhraseResponseDTO;
 import org.kenanselimovic.glas.dictionary.api.dto.TranslationDTO;
-import org.kenanselimovic.glas.dictionary.domain.Dictionary;
+import org.kenanselimovic.glas.dictionary.domain.*;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
 
 @ApplicationScoped
-public class TranslationApplicationService {
+public final class TranslationApplicationService {
 
     private final Logger logger = Logger.getLogger(TranslationApplicationService.class);
 
     @Inject
     Dictionary dictionary;
 
+    @Inject
+    TranslationRepository translationRepository;
+
+
     public Uni<PhraseResponseDTO> getTranslation(String phrase) {
         return dictionary.getTranslation(phrase)
-                .map(translations -> new PhraseResponseDTO(phrase, translations.stream().map(t -> new TranslationDTO(t.translation(), t.source())).toList()))
+                .onItem().invoke(this::cacheTranslations)
+                .map(translations -> new PhraseResponseDTO(phrase, translations.stream().map(t -> {
+                    final TranslationDTO.TranslationDTOExporter exporter = new TranslationDTO.TranslationDTOExporter();
+                    t.export(exporter);
+                    return exporter.toValue();
+                }).toList()))
                 .onItem().invoke(logger::debug);
+    }
+
+    private void cacheTranslations(List<Translation> translations) {
+        Uni
+                .join()
+                .all(translations.stream().map(translation -> translationRepository.save(translation)).toList())
+                .andCollectFailures()
+                .subscribeAsCompletionStage();
     }
 }

@@ -2,7 +2,6 @@ package org.kenanselimovic.glas.dictionary.infrastructure;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.kenanselimovic.glas.dictionary.domain.Translation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,7 @@ public class DocumentParser {
         this.document = document;
     }
 
-    public List<Translation> parse() {
+    public List<DictionaryPair> parse() {
         final Elements elements = document.select("td.td7nl");
         final List<String> translations = new ArrayList<>();
         final List<String> sources = new ArrayList<>();
@@ -27,9 +26,9 @@ public class DocumentParser {
             }
         }
 
-        final List<Translation> results = new ArrayList<>();
+        final List<DictionaryPair> results = new ArrayList<>();
         for (int i = 0; i < translations.size(); i++) {
-            results.add(new Translation(translations.get(i), sources.get(i)));
+            results.add(new DictionaryPair(translations.get(i), sources.get(i)));
         }
 
         return results;
