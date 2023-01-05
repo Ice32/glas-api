@@ -39,6 +39,7 @@ public class DictCC implements Dictionary {
                 .onItem().transform(HttpResponse::bodyAsString)
                 .onItem().transform(Jsoup::parse)
                 .onItem().invoke(logger::debug)
-                .onItem().transform(doc -> new DocumentParser(doc).parse().stream().map(dp -> new Translation(dp.translation(), dp.source(), phrase)).toList());
+                .onItem().transform(doc -> new DocumentParser(doc).parse().stream().map(dp -> new Translation(dp.translation(), dp.source(), phrase)).toList())
+                .onFailure().retry().atMost(1);
     }
 }
