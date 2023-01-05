@@ -23,12 +23,6 @@ public class Translation {
             column = @Column(name = "query"))
     private Word phrase;
 
-    public Translation(String text, Word source, Word phrase) {
-        this.text = text;
-        this.source = source;
-        this.phrase = phrase;
-    }
-
     public Translation(String text, String source, String phrase) {
         this.text = text;
         this.source = new Word(source);

@@ -3,6 +3,7 @@ package org.kenanselimovic.glas.glasimport.application;
 import io.smallrye.mutiny.Uni;
 import org.kenanselimovic.glas.glasimport.api.dto.CreateImportDTO;
 import org.kenanselimovic.glas.glasimport.api.dto.GlasImportDTO;
+import org.kenanselimovic.glas.glasimport.api.dto.GlasImportDTO.GlasImportDTOExporter;
 import org.kenanselimovic.glas.glasimport.domain.GlasImport;
 import org.kenanselimovic.glas.glasimport.domain.GlasImportRepository;
 
@@ -21,10 +22,18 @@ public class GlasImportApplicationService {
     }
 
     public Uni<List<GlasImportDTO>> getImports() {
-        return glasImportRepository.findAll().map(imports -> imports.stream().map(i -> new GlasImportDTO(i.getId(), i.getTitle(), i.getText())).toList());
+        return glasImportRepository.findAll().map(imports -> imports.stream().map(i -> {
+            final GlasImportDTOExporter exporter = new GlasImportDTOExporter();
+            i.export(exporter);
+            return exporter.toValue();
+        }).toList());
     }
 
     public Uni<GlasImportDTO> getImport(long id) {
-        return glasImportRepository.findById(id).map(i -> new GlasImportDTO(i.getId(), i.getTitle(), i.getText()));
+        return glasImportRepository.findById(id).map(i -> {
+            final GlasImportDTOExporter exporter = new GlasImportDTOExporter();
+            i.export(exporter);
+            return exporter.toValue();
+        });
     }
 }

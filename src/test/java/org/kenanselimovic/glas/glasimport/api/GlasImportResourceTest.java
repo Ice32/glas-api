@@ -5,8 +5,8 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 import org.kenanselimovic.PostgresContainerResource;
 import org.kenanselimovic.glas.glasimport.api.dto.CreateImportDTO;
-import org.kenanselimovic.glas.glasimport.domain.GlasImport;
-import org.kenanselimovic.glas.glasimport.domain.GlasImportRepository;
+import org.kenanselimovic.glas.glasimport.domain.*;
+import org.kenanselimovic.glas.glasimport.domain.GlasImport.GlasImportExporter;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.HttpHeaders;
@@ -40,8 +40,17 @@ class GlasImportResourceTest {
         final List<GlasImport> insertedImports = repository.findAll().await().indefinitely();
         assertThat(insertedImports).hasSize(1);
         final GlasImport inserted = insertedImports.get(0);
-        assertThat(inserted.getTitle()).isEqualTo(importTitle);
-        assertThat(inserted.getText()).isEqualTo(importText);
+        inserted.export(new GlasImportExporter() {
+            @Override
+            public void setText(String text) {
+                assertThat(text).isEqualTo(importText);
+            }
+
+            @Override
+            public void setTitle(String title) {
+                assertThat(title).isEqualTo(importTitle);
+            }
+        });
     }
 
     @Test
@@ -61,7 +70,9 @@ class GlasImportResourceTest {
         final String importTittle = "import title";
         final GlasImport glasImport = new GlasImport(importTittle, importText);
         repository.save(glasImport).await().indefinitely();
-        final Long id = glasImport.getId();
+        final GlasImportIdExporter glasImportIdExporter = new GlasImportIdExporter();
+        glasImport.export(glasImportIdExporter);
+        final Long id = glasImportIdExporter.toValue();
 
         given()
                 .pathParams("id", id)

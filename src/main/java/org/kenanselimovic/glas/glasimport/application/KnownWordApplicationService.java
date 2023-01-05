@@ -4,6 +4,7 @@ import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
 import org.kenanselimovic.glas.glasimport.api.dto.CreateKnownWordDTO;
 import org.kenanselimovic.glas.glasimport.api.dto.KnownWordDTO;
+import org.kenanselimovic.glas.glasimport.api.dto.KnownWordDTO.KnownWordDTOExporter;
 import org.kenanselimovic.glas.glasimport.domain.KnownWord;
 import org.kenanselimovic.glas.glasimport.domain.KnownWordRepository;
 
@@ -25,7 +26,11 @@ public class KnownWordApplicationService {
 
     public Uni<List<KnownWordDTO>> getKnownWords() {
         return knownWordRepository.findAll()
-                .map(knownWords -> knownWords.stream().map(kw -> new KnownWordDTO(kw.getId(), kw.getWord().getText())).toList())
+                .map(knownWords -> knownWords.stream().map(kw -> {
+                    final KnownWordDTOExporter exporter = new KnownWordDTOExporter();
+                    kw.export(exporter);
+                    return exporter.toValue();
+                }).toList())
                 .onItem().invoke(logger::debug);
     }
 }

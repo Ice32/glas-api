@@ -23,31 +23,29 @@ public class KnownWord {
         this.word = new Word(word);
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Word getWord() {
-        return word;
-    }
-
-    public void setWord(Word word) {
-        this.word = word;
+    public void export(KnownWordExporter exporter) {
+        exporter.setId(id);
+        exporter.setText(word.getText());
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof KnownWord knownWord)) return false;
-        return getWord().equals(knownWord.getWord());
+        return word.equals(knownWord.word);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getWord());
+        return Objects.hash(word);
+    }
+
+    public interface KnownWordExporter {
+
+        default void setId(Long id) {
+        }
+
+        default void setText(String text) {
+        }
     }
 }

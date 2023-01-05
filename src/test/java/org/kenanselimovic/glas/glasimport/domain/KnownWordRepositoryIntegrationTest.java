@@ -36,13 +36,19 @@ class KnownWordRepositoryIntegrationTest {
 
     @Test
     void save_SavesToDb() {
-        final KnownWord knownWord = new KnownWord("aWord");
+        final String wordText = "aWord";
+        final KnownWord knownWord = new KnownWord(wordText);
 
         knownWordRepository.save(knownWord).await().indefinitely();
 
-        final KnownWord inserted = sf.withTransaction((session -> session.find(KnownWord.class, knownWord.getId()))).await().indefinitely();
+        final KnownWord inserted = knownWordRepository.findAll().await().indefinitely().get(0);
         assertThat(inserted).isNotNull();
-        assertThat(inserted.getWord()).isEqualTo(knownWord.getWord());
+        inserted.export(new KnownWord.KnownWordExporter() {
+            @Override
+            public void setText(String text) {
+                assertThat(text).isEqualTo(wordText);
+            }
+        });
 
     }
 
@@ -63,13 +69,19 @@ class KnownWordRepositoryIntegrationTest {
 
     @Test
     void findALl_ReturnsAll() {
-        final KnownWord knownWord = new KnownWord("aWord");
+        final String wordText = "aWord";
+        final KnownWord knownWord = new KnownWord(wordText);
         sf.withTransaction(session -> session.persist(knownWord)).await().indefinitely();
 
         final List<KnownWord> knownWords = knownWordRepository.findAll().await().indefinitely();
 
         assertThat(knownWords).hasSize(1);
         final KnownWord insertedKnownWord = knownWords.stream().findFirst().orElseThrow();
-        assertThat(insertedKnownWord.getWord()).isEqualTo(knownWord.getWord());
+        insertedKnownWord.export(new KnownWord.KnownWordExporter() {
+            @Override
+            public void setText(String text) {
+                assertThat(text).isEqualTo(wordText);
+            }
+        });
     }
 }

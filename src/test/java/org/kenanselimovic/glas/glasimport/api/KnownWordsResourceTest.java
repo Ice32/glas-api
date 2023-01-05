@@ -7,7 +7,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.kenanselimovic.PostgresContainerResource;
 import org.kenanselimovic.glas.glasimport.api.dto.CreateKnownWordDTO;
-import org.kenanselimovic.glas.glasimport.domain.*;
+import org.kenanselimovic.glas.glasimport.domain.KnownWord;
+import org.kenanselimovic.glas.glasimport.domain.KnownWord.KnownWordExporter;
+import org.kenanselimovic.glas.glasimport.domain.KnownWordRepository;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.HttpHeaders;
@@ -51,7 +53,12 @@ class KnownWordsResourceTest {
         final List<KnownWord> insertedKnownWords = repository.findAll().await().indefinitely();
         assertThat(insertedKnownWords).hasSize(1);
         final KnownWord inserted = insertedKnownWords.get(0);
-        assertThat(inserted.getWord()).isEqualTo(new Word(wordText));
+        inserted.export(new KnownWordExporter() {
+            @Override
+            public void setText(String text) {
+                assertThat(text).isEqualTo(wordText);
+            }
+        });
     }
 
     @Test

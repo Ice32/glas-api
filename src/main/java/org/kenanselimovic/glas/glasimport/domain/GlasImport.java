@@ -25,27 +25,21 @@ public class GlasImport {
         this.text = text;
     }
 
-    public Long getId() {
-        return id;
+    public void export(GlasImportExporter exporter) {
+        exporter.setId(id);
+        exporter.setText(text);
+        exporter.setTitle(title);
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public interface GlasImportExporter {
 
-    public String getText() {
-        return text;
-    }
+        default void setText(String text) {
+        }
 
-    public void setText(String text) {
-        this.text = text;
-    }
+        default void setTitle(String title) {
+        }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
+        default void setId(Long id) {
+        }
     }
 }
