@@ -5,8 +5,8 @@ import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 @Entity
-@NamedQuery(name = "KnownWord.findAll", query = "SELECT kw FROM KnownWord kw")
-public class KnownWord {
+@NamedQuery(name = "MyWord.findAll", query = "SELECT mw FROM MyWord mw")
+public class MyWord {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -15,15 +15,15 @@ public class KnownWord {
     @NotNull
     private Word word;
 
-    protected KnownWord() {
+    protected MyWord() {
         // for JPA
     }
 
-    public KnownWord(String word) {
+    public MyWord(String word) {
         this.word = new Word(word);
     }
 
-    public void export(KnownWordExporter exporter) {
+    public void export(MyWordExporter exporter) {
         exporter.setId(id);
         exporter.setText(word.getText());
     }
@@ -31,8 +31,8 @@ public class KnownWord {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof KnownWord knownWord)) return false;
-        return word.equals(knownWord.word);
+        if (!(o instanceof MyWord myWord)) return false;
+        return word.equals(myWord.word);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class KnownWord {
         return Objects.hash(word);
     }
 
-    public interface KnownWordExporter {
+    public interface MyWordExporter {
 
         default void setId(Long id) {
         }

@@ -6,10 +6,10 @@ import org.hibernate.reactive.mutiny.Mutiny;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.kenanselimovic.PostgresContainerResource;
-import org.kenanselimovic.glas.glasimport.api.dto.CreateKnownWordDTO;
-import org.kenanselimovic.glas.glasimport.domain.KnownWord;
-import org.kenanselimovic.glas.glasimport.domain.KnownWord.KnownWordExporter;
-import org.kenanselimovic.glas.glasimport.domain.KnownWordRepository;
+import org.kenanselimovic.glas.glasimport.api.dto.CreateMyWordDTO;
+import org.kenanselimovic.glas.glasimport.domain.MyWord;
+import org.kenanselimovic.glas.glasimport.domain.MyWord.MyWordExporter;
+import org.kenanselimovic.glas.glasimport.domain.MyWordRepository;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.HttpHeaders;
@@ -22,10 +22,10 @@ import static org.hamcrest.Matchers.is;
 
 @QuarkusTest
 @QuarkusTestResource(PostgresContainerResource.class)
-class KnownWordsResourceTest {
+class MyWordsResourceTest {
 
     @Inject
-    KnownWordRepository repository;
+    MyWordRepository repository;
 
     @Inject
     Mutiny.SessionFactory sf;
@@ -33,27 +33,27 @@ class KnownWordsResourceTest {
     @BeforeEach
     void beforeEach() {
         sf
-                .withTransaction(session -> session.createQuery("DELETE FROM KnownWord").executeUpdate())
+                .withTransaction(session -> session.createQuery("DELETE FROM MyWord").executeUpdate())
                 .await().indefinitely();
     }
 
     @Test
     void addNew_SavesInDb() {
         final String wordText = "word";
-        final CreateKnownWordDTO createKnownWordDTO = new CreateKnownWordDTO(wordText);
+        final CreateMyWordDTO createMyWordDTO = new CreateMyWordDTO(wordText);
 
         given()
-                .body(createKnownWordDTO)
+                .body(createMyWordDTO)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
-                .when().post("/known-words")
+                .when().post("/my-words")
                 .then()
                 .statusCode(204);
 
-        final List<KnownWord> insertedKnownWords = repository.findAll().await().indefinitely();
-        assertThat(insertedKnownWords).hasSize(1);
-        final KnownWord inserted = insertedKnownWords.get(0);
-        inserted.export(new KnownWordExporter() {
+        final List<MyWord> insertedMyWords = repository.findAll().await().indefinitely();
+        assertThat(insertedMyWords).hasSize(1);
+        final MyWord inserted = insertedMyWords.get(0);
+        inserted.export(new MyWordExporter() {
             @Override
             public void setText(String text) {
                 assertThat(text).isEqualTo(wordText);
@@ -67,7 +67,7 @@ class KnownWordsResourceTest {
                 .body("{}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
-                .when().post("/known-words")
+                .when().post("/my-words")
                 .then()
                 .statusCode(400);
     }
@@ -75,11 +75,11 @@ class KnownWordsResourceTest {
     @Test
     void findAll_ReturnsSavedWords() {
         final String wordText = "word";
-        repository.save(new KnownWord(wordText)).await().indefinitely();
+        repository.save(new MyWord(wordText)).await().indefinitely();
 
         given()
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
-                .when().get("/known-words")
+                .when().get("/my-words")
                 .then()
                 .statusCode(200)
                 .body("size()", is(1))

@@ -1,9 +1,9 @@
 package org.kenanselimovic.glas.glasimport.domain;
 
 
-import org.kenanselimovic.glas.glasimport.domain.KnownWord.KnownWordExporter;
+import org.kenanselimovic.glas.glasimport.domain.MyWord.MyWordExporter;
 
-public final class KnownWordIdExporter implements KnownWordExporter {
+public final class MyWordIdExporter implements MyWordExporter {
     private Long id;
 
     @Override

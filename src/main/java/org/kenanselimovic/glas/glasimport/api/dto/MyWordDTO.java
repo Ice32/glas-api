@@ -1,11 +1,11 @@
 package org.kenanselimovic.glas.glasimport.api.dto;
 
-import org.kenanselimovic.glas.glasimport.domain.KnownWord.KnownWordExporter;
+import org.kenanselimovic.glas.glasimport.domain.MyWord.MyWordExporter;
 
 import static java.util.Objects.nonNull;
 
-public record KnownWordDTO(long id, String text) {
-    public static class KnownWordDTOExporter implements KnownWordExporter {
+public record MyWordDTO(long id, String text) {
+    public static class MyWordDTOExporter implements MyWordExporter {
         private long id;
         private String text;
 
@@ -21,8 +21,8 @@ public record KnownWordDTO(long id, String text) {
         }
 
 
-        public KnownWordDTO toValue() {
-            return new KnownWordDTO(id, text);
+        public MyWordDTO toValue() {
+            return new MyWordDTO(id, text);
         }
     }
 }
