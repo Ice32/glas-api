@@ -8,8 +8,7 @@ import org.kenanselimovic.glas.glasimport.api.dto.MyWordDTO;
 import org.kenanselimovic.glas.glasimport.domain.MyWord;
 import org.kenanselimovic.glas.glasimport.domain.MyWord.MyWordExporter;
 import org.kenanselimovic.glas.glasimport.domain.MyWordRepository;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -28,6 +27,9 @@ class MyWordApplicationServiceTest {
     @Mock
     MyWord myWord;
 
+    @Captor
+    ArgumentCaptor<MyWord> myWordArgumentCaptor;
+
     @InjectMocks
     MyWordApplicationService myWordApplicationService;
 
@@ -35,11 +37,23 @@ class MyWordApplicationServiceTest {
     void createMyWord_CallsRepository() {
         when(myWordRepository.save(any())).thenReturn(Uni.createFrom().voidItem());
         final String wordText = "aWord";
-        final CreateMyWordDTO createMyWordDTO = new CreateMyWordDTO(wordText);
+        final CreateMyWordDTO createMyWordDTO = new CreateMyWordDTO(wordText, false);
 
         myWordApplicationService.createMyWord(createMyWordDTO).await().indefinitely();
 
         verify(myWordRepository).save(new MyWord(wordText));
+    }
+
+    @Test
+    void createMyWord_KnownWord_CallsRepository() {
+        when(myWordRepository.save(any())).thenReturn(Uni.createFrom().voidItem());
+        final String wordText = "aWord";
+        final CreateMyWordDTO createMyWordDTO = new CreateMyWordDTO(wordText, true);
+
+        myWordApplicationService.createMyWord(createMyWordDTO).await().indefinitely();
+
+        verify(myWordRepository).save(myWordArgumentCaptor.capture());
+        assertThat(myWordArgumentCaptor.getValue()).usingRecursiveComparison().isEqualTo(MyWord.knownWord(wordText));
     }
 
     @Test

@@ -18,18 +18,18 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @QuarkusTest
 @Transactional
 @QuarkusTestResource(PostgresContainerResource.class)
-class KnownWordRepositoryIntegrationTest {
+class MyWordRepositoryIntegrationTest {
 
     @Inject
     Mutiny.SessionFactory sf;
 
     @Inject
-    KnownWordRepository knownWordRepository;
+    MyWordRepository myWordRepository;
 
     @BeforeEach
     void beforeEach() {
         sf
-                .withTransaction(session -> session.createQuery("DELETE FROM KnownWord").executeUpdate())
+                .withTransaction(session -> session.createQuery("DELETE FROM MyWord").executeUpdate())
                 .await().indefinitely();
     }
 
@@ -37,13 +37,13 @@ class KnownWordRepositoryIntegrationTest {
     @Test
     void save_SavesToDb() {
         final String wordText = "aWord";
-        final KnownWord knownWord = new KnownWord(wordText);
+        final MyWord myWord = new MyWord(wordText);
 
-        knownWordRepository.save(knownWord).await().indefinitely();
+        myWordRepository.save(myWord).await().indefinitely();
 
-        final KnownWord inserted = knownWordRepository.findAll().await().indefinitely().get(0);
+        final MyWord inserted = myWordRepository.findAll().await().indefinitely().get(0);
         assertThat(inserted).isNotNull();
-        inserted.export(new KnownWord.KnownWordExporter() {
+        inserted.export(new MyWord.MyWordExporter() {
             @Override
             public void setText(String text) {
                 assertThat(text).isEqualTo(wordText);
@@ -54,30 +54,30 @@ class KnownWordRepositoryIntegrationTest {
 
     @Test
     void save_WordNull_Throws() {
-        final KnownWord knownWord = new KnownWord();
+        final MyWord myWord = new MyWord();
 
-        assertThrows(PersistenceException.class, () -> knownWordRepository.save(knownWord).await().indefinitely());
+        assertThrows(PersistenceException.class, () -> myWordRepository.save(myWord).await().indefinitely());
     }
 
     @Test
     void save_DuplicateWord_Throws() {
         final String wordText = "aWord";
-        sf.withTransaction(session -> session.persist(new KnownWord(wordText))).await().indefinitely();
+        sf.withTransaction(session -> session.persist(new MyWord(wordText))).await().indefinitely();
 
-        assertThrows(PersistenceException.class, () -> knownWordRepository.save(new KnownWord(wordText)).await().indefinitely());
+        assertThrows(PersistenceException.class, () -> myWordRepository.save(new MyWord(wordText)).await().indefinitely());
     }
 
     @Test
     void findALl_ReturnsAll() {
         final String wordText = "aWord";
-        final KnownWord knownWord = new KnownWord(wordText);
-        sf.withTransaction(session -> session.persist(knownWord)).await().indefinitely();
+        final MyWord myWord = new MyWord(wordText);
+        sf.withTransaction(session -> session.persist(myWord)).await().indefinitely();
 
-        final List<KnownWord> knownWords = knownWordRepository.findAll().await().indefinitely();
+        final List<MyWord> myWords = myWordRepository.findAll().await().indefinitely();
 
-        assertThat(knownWords).hasSize(1);
-        final KnownWord insertedKnownWord = knownWords.stream().findFirst().orElseThrow();
-        insertedKnownWord.export(new KnownWord.KnownWordExporter() {
+        assertThat(myWords).hasSize(1);
+        final MyWord insertedMyWord = myWords.stream().findFirst().orElseThrow();
+        insertedMyWord.export(new MyWord.MyWordExporter() {
             @Override
             public void setText(String text) {
                 assertThat(text).isEqualTo(wordText);

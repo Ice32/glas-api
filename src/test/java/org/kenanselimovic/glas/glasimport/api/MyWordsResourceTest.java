@@ -40,7 +40,7 @@ class MyWordsResourceTest {
     @Test
     void addNew_SavesInDb() {
         final String wordText = "word";
-        final CreateMyWordDTO createMyWordDTO = new CreateMyWordDTO(wordText);
+        final CreateMyWordDTO createMyWordDTO = new CreateMyWordDTO(wordText, false);
 
         given()
                 .body(createMyWordDTO)
@@ -58,13 +58,49 @@ class MyWordsResourceTest {
             public void setText(String text) {
                 assertThat(text).isEqualTo(wordText);
             }
+
+            @Override
+            public void setFamiliarity(short familiarity) {
+                assertThat(familiarity).isEqualTo((short) 1);
+            }
+        });
+    }
+
+    @Test
+    void addNew_KnownWord_SavesInDb() {
+        final CreateMyWordDTO createMyWordDTO = new CreateMyWordDTO("word", true);
+
+        given()
+                .body(createMyWordDTO)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
+                .when().post("/my-words");
+
+        final MyWord inserted = repository.findAll().await().indefinitely().get(0);
+        inserted.export(new MyWordExporter() {
+
+            @Override
+            public void setFamiliarity(short familiarity) {
+                assertThat(familiarity).isEqualTo((short) 5);
+            }
         });
     }
 
     @Test
     void addNew_MissingText_Returns400() {
         given()
-                .body("{}")
+                .body("{\"isKnown\":false}")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
+                .when().post("/my-words")
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
+    void addNew_MissingFamiliarity_Returns400() {
+        given()
+                .body("{\"text\":\"a text\"}")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
                 .when().post("/my-words")

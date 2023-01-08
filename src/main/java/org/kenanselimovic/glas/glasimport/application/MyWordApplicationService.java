@@ -21,7 +21,9 @@ public class MyWordApplicationService {
     MyWordRepository myWordRepository;
 
     public Uni<Void> createMyWord(CreateMyWordDTO createMyWordDTO) {
-        return myWordRepository.save(new MyWord(createMyWordDTO.text()));
+        return myWordRepository.save(createMyWordDTO.isKnown()
+                ? MyWord.knownWord(createMyWordDTO.text())
+                : new MyWord(createMyWordDTO.text()));
     }
 
     public Uni<List<MyWordDTO>> getMyWords() {

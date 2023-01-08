@@ -2,5 +2,5 @@ package org.kenanselimovic.glas.glasimport.api.dto;
 
 import javax.validation.constraints.NotNull;
 
-public record CreateMyWordDTO(@NotNull String text) {
+public record CreateMyWordDTO(@NotNull String text, @NotNull Boolean isKnown) {
 }
